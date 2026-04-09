@@ -2,6 +2,7 @@
 const onboardingScreen = document.getElementById('onboarding');
 const dashboardScreen = document.getElementById('dashboard');
 const addRideScreen = document.getElementById('add-ride');
+const settingsScreen = document.getElementById('settings');
 
 // Karte
 let map = null;
@@ -67,6 +68,10 @@ function formatDate(dateStr) {
 function showScreen(screen) {
   [onboardingScreen, dashboardScreen, addRideScreen].forEach(s => s.classList.add('hidden'));
   screen.classList.remove('hidden');
+  {
+    [onboardingScreen, dashboardScreen, addRideScreen, settingsScreen].forEach(s => s.classList.add('hidden'));
+    screen.classList.remove('hidden');
+  }
 }
 
 // Profil laden
@@ -236,6 +241,34 @@ document.getElementById('ride-form').addEventListener('submit', e => {
   updateDashboard();
 initMap();
 });
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+    const profile = loadProfile();
+    document.getElementById('settings-name').value = profile.name;
+    document.getElementById('settings-weight').value = profile.weight;
+    document.getElementById('settings-age').value = profile.age;
+    document.getElementById('settings-gender').value = profile.gender;
+    showScreen(settingsScreen);
+  });
+  
+  document.getElementById('cancel-settings').addEventListener('click', () => {
+    showScreen(dashboardScreen);
+    initMap();
+  });
+  
+  document.getElementById('settings-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const profile = {
+      name: document.getElementById('settings-name').value,
+      weight: parseFloat(document.getElementById('settings-weight').value),
+      age: parseInt(document.getElementById('settings-age').value),
+      gender: document.getElementById('settings-gender').value
+    };
+    localStorage.setItem('profile', JSON.stringify(profile));
+    showScreen(dashboardScreen);
+    updateDashboard();
+    initMap();
+  });
 
 if (loadProfile()) {
     showScreen(dashboardScreen);

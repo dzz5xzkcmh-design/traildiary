@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-
+    <div class="topo-bg"></div>
   <!-- Onboarding -->
   <div id="onboarding" class="screen">
     <h1>Traildiary</h1>
@@ -29,9 +29,12 @@
   <!-- Dashboard -->
   <div id="dashboard" class="screen hidden">
     <header>
-      <h1>Traildiary</h1>
-      <button id="add-ride-btn">+ Ride</button>
-    </header>
+        <h1>Traildiary</h1>
+        <div class="header-btns">
+          <button id="settings-btn">⚙️</button>
+          <button id="add-ride-btn">+ Ride</button>
+        </div>
+      </header>
     <div id="stats">
       <div class="stat"><span id="total-rides">0</span><label>Rides</label></div>
       <div class="stat"><span id="total-km">0</span><label>km</label></div>
@@ -53,6 +56,22 @@
       <input type="number" id="elevation" placeholder="Höhenmeter" required />
       <button type="submit">Speichern</button>
       <button type="button" id="cancel-ride">Abbrechen</button>
+    </form>
+  </div>
+
+  <!-- Einstellungen -->
+<div id="settings" class="screen hidden">
+    <h2>Profil bearbeiten</h2>
+    <form id="settings-form">
+      <input type="text" id="settings-name" placeholder="Dein Name" required />
+      <input type="number" id="settings-weight" placeholder="Gewicht (kg)" required />
+      <input type="number" id="settings-age" placeholder="Alter" required />
+      <select id="settings-gender">
+        <option value="male">Männlich</option>
+        <option value="female">Weiblich</option>
+      </select>
+      <button type="submit">Speichern</button>
+      <button type="button" id="cancel-settings">Abbrechen</button>
     </form>
   </div>
 
