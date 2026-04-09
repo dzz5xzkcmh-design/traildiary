@@ -41,7 +41,7 @@ function initMap() {
         iconAnchor: [7, 7],
         popupAnchor: [0, -10]
       });
-  
+
       const marker = L.marker([r.lat, r.lng], { icon: greenIcon })
         .addTo(map)
         .bindPopup(`
@@ -59,19 +59,16 @@ function initMap() {
     map.fitBounds(group.getBounds().pad(0.2));
   }
 }
+
 function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
-  }
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
 // Hilfsfunktionen
 function showScreen(screen) {
-  [onboardingScreen, dashboardScreen, addRideScreen].forEach(s => s.classList.add('hidden'));
+  [onboardingScreen, dashboardScreen, addRideScreen, settingsScreen].forEach(s => s.classList.add('hidden'));
   screen.classList.remove('hidden');
-  {
-    [onboardingScreen, dashboardScreen, addRideScreen, settingsScreen].forEach(s => s.classList.add('hidden'));
-    screen.classList.remove('hidden');
-  }
 }
 
 // Profil laden
@@ -86,30 +83,27 @@ function loadRides() {
 
 // Kalorien berechnen (MET-Methode)
 function calcCalories(profile, distanceKm, durationMin, elevationM) {
-    const hours = durationMin / 60;
-    const speed = distanceKm / hours;
-  
-    let met;
-    if (speed < 16) met = 4.0;
-    else if (speed < 19) met = 5.0;
-    else if (speed < 23) met = 6.8;
-    else if (speed < 28) met = 8.0;
-    else met = 10.0;
-  
-    // MTB Geländebonus durch Höhenmeter
-    const elevationBonus = (elevationM / distanceKm) * 0.2;
-    met += elevationBonus;
-  
-    // Geschlechtskorrektur
-    const genderFactor = profile.gender === 'female' ? 0.85 : 1.0;
-  
-    return Math.round(met * profile.weight * hours * genderFactor);
-  }
+  const hours = durationMin / 60;
+  const speed = distanceKm / hours;
+
+  let met;
+  if (speed < 16) met = 4.0;
+  else if (speed < 19) met = 5.0;
+  else if (speed < 23) met = 6.8;
+  else if (speed < 28) met = 8.0;
+  else met = 10.0;
+
+  const elevationBonus = (elevationM / distanceKm) * 0.2;
+  met += elevationBonus;
+
+  const genderFactor = profile.gender === 'female' ? 0.85 : 1.0;
+
+  return Math.round(met * profile.weight * hours * genderFactor);
+}
 
 // Dashboard aktualisieren
 function updateDashboard() {
   const rides = loadRides();
-  const profile = loadProfile();
 
   let totalKm = 0, totalHm = 0, totalKcal = 0;
 
@@ -174,7 +168,7 @@ document.getElementById('onboarding-form').addEventListener('submit', e => {
   localStorage.setItem('profile', JSON.stringify(profile));
   showScreen(dashboardScreen);
   updateDashboard();
-initMap();
+  initMap();
 });
 
 // Ride hinzufügen
@@ -184,6 +178,7 @@ document.getElementById('add-ride-btn').addEventListener('click', () => {
 
 document.getElementById('cancel-ride').addEventListener('click', () => {
   showScreen(dashboardScreen);
+  initMap();
 });
 
 document.getElementById('ride-form').addEventListener('submit', e => {
@@ -214,7 +209,6 @@ document.getElementById('ride-form').addEventListener('submit', e => {
       initMap();
     },
     () => {
-      // Kein GPS — ohne Koordinaten speichern
       const ride = {
         name: document.getElementById('trail-name').value,
         date: document.getElementById('ride-date').value,
@@ -233,47 +227,42 @@ document.getElementById('ride-form').addEventListener('submit', e => {
       updateDashboard();
       initMap();
     }
-  );;
-  localStorage.setItem('rides', JSON.stringify(rides));
-
-  document.getElementById('ride-form').reset();
-  showScreen(dashboardScreen);
-  updateDashboard();
-initMap();
+  );
 });
 
 document.getElementById('settings-btn').addEventListener('click', () => {
-    const profile = loadProfile();
-    document.getElementById('settings-name').value = profile.name;
-    document.getElementById('settings-weight').value = profile.weight;
-    document.getElementById('settings-age').value = profile.age;
-    document.getElementById('settings-gender').value = profile.gender;
-    showScreen(settingsScreen);
-  });
-  
-  document.getElementById('cancel-settings').addEventListener('click', () => {
-    showScreen(dashboardScreen);
-    initMap();
-  });
-  
-  document.getElementById('settings-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const profile = {
-      name: document.getElementById('settings-name').value,
-      weight: parseFloat(document.getElementById('settings-weight').value),
-      age: parseInt(document.getElementById('settings-age').value),
-      gender: document.getElementById('settings-gender').value
-    };
-    localStorage.setItem('profile', JSON.stringify(profile));
-    showScreen(dashboardScreen);
-    updateDashboard();
-    initMap();
-  });
+  const profile = loadProfile();
+  document.getElementById('settings-name').value = profile.name;
+  document.getElementById('settings-weight').value = profile.weight;
+  document.getElementById('settings-age').value = profile.age;
+  document.getElementById('settings-gender').value = profile.gender;
+  showScreen(settingsScreen);
+});
 
+document.getElementById('cancel-settings').addEventListener('click', () => {
+  showScreen(dashboardScreen);
+  initMap();
+});
+
+document.getElementById('settings-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const profile = {
+    name: document.getElementById('settings-name').value,
+    weight: parseFloat(document.getElementById('settings-weight').value),
+    age: parseInt(document.getElementById('settings-age').value),
+    gender: document.getElementById('settings-gender').value
+  };
+  localStorage.setItem('profile', JSON.stringify(profile));
+  showScreen(dashboardScreen);
+  updateDashboard();
+  initMap();
+});
+
+// Init
 if (loadProfile()) {
-    showScreen(dashboardScreen);
-    updateDashboard();
-    initMap();
-  } else {
-    showScreen(onboardingScreen);
-  }
+  showScreen(dashboardScreen);
+  updateDashboard();
+  initMap();
+} else {
+  showScreen(onboardingScreen);
+}

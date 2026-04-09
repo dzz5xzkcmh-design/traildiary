@@ -6,10 +6,11 @@
   <title>Traildiary</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <div class="topo-bg"></div>
+  <div class="topo-bg"></div>
+
   <!-- Onboarding -->
   <div id="onboarding" class="screen">
     <h1>Traildiary</h1>
@@ -29,12 +30,9 @@
   <!-- Dashboard -->
   <div id="dashboard" class="screen hidden">
     <header>
-        <h1>Traildiary</h1>
-        <div class="header-btns">
-          <button id="settings-btn">⚙️</button>
-          <button id="add-ride-btn">+ Ride</button>
-        </div>
-      </header>
+      <h1>Traildiary</h1>
+      <button id="settings-btn">Einstellungen</button>
+    </header>
     <div id="stats">
       <div class="stat"><span id="total-rides">0</span><label>Rides</label></div>
       <div class="stat"><span id="total-km">0</span><label>km</label></div>
@@ -43,6 +41,9 @@
     </div>
     <div id="ride-list"></div>
     <div id="map"></div>
+    <div class="add-ride-wrap">
+      <button id="add-ride-btn">+ Ride</button>
+    </div>
   </div>
 
   <!-- Ride hinzufügen -->
@@ -60,7 +61,7 @@
   </div>
 
   <!-- Einstellungen -->
-<div id="settings" class="screen hidden">
+  <div id="settings" class="screen hidden">
     <h2>Profil bearbeiten</h2>
     <form id="settings-form">
       <input type="text" id="settings-name" placeholder="Dein Name" required />

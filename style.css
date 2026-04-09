@@ -22,6 +22,7 @@
     pointer-events: none;
     background-image: url('berge.jpg');
     background-size: cover;
+    opacity: 0.19;
     background-position: center 30%;
     filter: grayscale(100%) contrast(1.2);
   }
@@ -31,7 +32,7 @@
     color: var(--text);
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     min-height: 100vh;
-    max-width: 480px;
+    max-width: 900px;
     margin: 0 auto;
   }
   
@@ -130,43 +131,36 @@
     align-items: center;
     padding: 24px 24px 20px;
     border-bottom: 1px solid var(--border);
-  }
-  
-  header h1 {
-    font-size: 1.2rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    color: var(--text);
-  }
-  
-  .header-btns {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+    position: relative;
   }
   
   #settings-btn {
+    position: absolute;
+    top: 20px;
+    right: 24px;
     background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    width: 36px;
-    height: 36px;
-    border-radius: 4px;
+    border: none;
+    color: #f0f0f0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  
+  .add-ride-wrap {
     display: flex;
-    align-items: center;
     justify-content: center;
+    padding: 24px;
   }
   
   #add-ride-btn {
     background: var(--accent);
     color: #0a0a0a;
     border: none;
-    padding: 10px 16px;
+    padding: 14px 40px;
     border-radius: 4px;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -200,7 +194,7 @@
   
   .stat label {
     font-size: 0.65rem;
-    color: var(--text-muted);
+    color: #f0f0f0;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 6px;
@@ -293,7 +287,7 @@
   /* ── MAP ── */
   #map {
     width: 100%;
-    height: 320px;
+    height: 480px;
     margin-top: 24px;
     border-top: 1px solid var(--border);
     z-index: 0;
