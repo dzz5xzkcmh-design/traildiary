@@ -26,7 +26,22 @@ function initMap() {
 
   rides.forEach(r => {
     if (r.lat && r.lng) {
-      const marker = L.marker([r.lat, r.lng])
+      const greenIcon = L.divIcon({
+        className: '',
+        html: `<div style="
+          width: 14px;
+          height: 14px;
+          background: #7eb87a;
+          border: 2px solid #0f1210;
+          border-radius: 50%;
+          box-shadow: 0 0 0 3px #7eb87a44;
+        "></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+        popupAnchor: [0, -10]
+      });
+  
+      const marker = L.marker([r.lat, r.lng], { icon: greenIcon })
         .addTo(map)
         .bindPopup(`
           <strong>${r.name}</strong><br>
@@ -62,10 +77,25 @@ function loadRides() {
 
 // Kalorien berechnen (MET-Methode)
 function calcCalories(profile, distanceKm, durationMin, elevationM) {
-  const met = 8 + (elevationM / durationMin) * 2;
-  const hours = durationMin / 60;
-  return Math.round((met * profile.weight * hours));
-}
+    const hours = durationMin / 60;
+    const speed = distanceKm / hours;
+  
+    let met;
+    if (speed < 16) met = 4.0;
+    else if (speed < 19) met = 5.0;
+    else if (speed < 23) met = 6.8;
+    else if (speed < 28) met = 8.0;
+    else met = 10.0;
+  
+    // MTB Geländebonus durch Höhenmeter
+    const elevationBonus = (elevationM / distanceKm) * 0.5;
+    met += elevationBonus;
+  
+    // Geschlechtskorrektur
+    const genderFactor = profile.gender === 'female' ? 0.85 : 1.0;
+  
+    return Math.round(met * profile.weight * hours * genderFactor);
+  }
 
 // Dashboard aktualisieren
 function updateDashboard() {
