@@ -58,6 +58,10 @@ function initMap() {
     map.fitBounds(group.getBounds().pad(0.2));
   }
 }
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
 
 // Hilfsfunktionen
 function showScreen(screen) {
@@ -123,12 +127,17 @@ function updateDashboard() {
     return;
   }
 
-  [...rides].reverse().forEach(r => {
+  [...rides].reverse().forEach((r, i) => {
     const card = document.createElement('div');
     card.className = 'ride-card';
     card.innerHTML = `
-      <h3>${r.name}</h3>
-      <p>${r.date}</p>
+      <div class="card-header">
+        <div>
+          <h3>${r.name}</h3>
+          <p>${formatDate(r.date)}</p>
+        </div>
+        <button class="delete-btn" data-index="${rides.length - 1 - i}">✕</button>
+      </div>
       <div class="ride-stats">
         <span>${r.distance} km</span>
         <span>${r.elevation} Hm</span>
@@ -136,6 +145,14 @@ function updateDashboard() {
         <span>${r.calories} kcal</span>
       </div>
     `;
+    card.querySelector('.delete-btn').addEventListener('click', (e) => {
+      const index = parseInt(e.target.dataset.index);
+      const rides = loadRides();
+      rides.splice(index, 1);
+      localStorage.setItem('rides', JSON.stringify(rides));
+      updateDashboard();
+      initMap();
+    });
     list.appendChild(card);
   });
 }
