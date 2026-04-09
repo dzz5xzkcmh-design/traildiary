@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traildiary</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Onboarding -->
+  <div id="onboarding" class="screen">
+    <h1>Traildiary</h1>
+    <p>Richte dein Profil ein um loszulegen.</p>
+    <form id="onboarding-form">
+      <input type="text" id="name" placeholder="Dein Name" required />
+      <input type="number" id="weight" placeholder="Gewicht (kg)" required />
+      <input type="number" id="age" placeholder="Alter" required />
+      <select id="gender">
+        <option value="male">Männlich</option>
+        <option value="female">Weiblich</option>
+      </select>
+      <button type="submit">Loslegen</button>
+    </form>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="screen hidden">
+    <header>
+      <h1>Traildiary</h1>
+      <button id="add-ride-btn">+ Ride</button>
+    </header>
+    <div id="stats">
+      <div class="stat"><span id="total-rides">0</span><label>Rides</label></div>
+      <div class="stat"><span id="total-km">0</span><label>km</label></div>
+      <div class="stat"><span id="total-hm">0</span><label>Hm</label></div>
+      <div class="stat"><span id="total-kcal">0</span><label>kcal</label></div>
+    </div>
+    <div id="ride-list"></div>
+  </div>
+
+  <!-- Ride hinzufügen -->
+  <div id="add-ride" class="screen hidden">
+    <h2>Neuer Ride</h2>
+    <form id="ride-form">
+      <input type="text" id="trail-name" placeholder="Trailname" required />
+      <input type="date" id="ride-date" required />
+      <input type="number" id="distance" placeholder="Distanz (km)" required />
+      <input type="number" id="duration" placeholder="Dauer (Minuten)" required />
+      <input type="number" id="elevation" placeholder="Höhenmeter" required />
+      <button type="submit">Speichern</button>
+      <button type="button" id="cancel-ride">Abbrechen</button>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
