@@ -88,7 +88,7 @@ function calcCalories(profile, distanceKm, durationMin, elevationM) {
     else met = 10.0;
   
     // MTB Geländebonus durch Höhenmeter
-    const elevationBonus = (elevationM / distanceKm) * 0.5;
+    const elevationBonus = (elevationM / distanceKm) * 0.2;
     met += elevationBonus;
   
     // Geschlechtskorrektur
