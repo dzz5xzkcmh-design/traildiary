@@ -15,8 +15,8 @@ function initMap() {
 
   map = L.map('map').setView([48.05, 8.2], 10);
 
-  L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-    attribution: '© Stadia Maps © OpenStreetMap'
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
   }).addTo(map);
 
   const rides = loadRides();
