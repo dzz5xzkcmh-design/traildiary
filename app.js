@@ -3,6 +3,47 @@ const onboardingScreen = document.getElementById('onboarding');
 const dashboardScreen = document.getElementById('dashboard');
 const addRideScreen = document.getElementById('add-ride');
 
+// Karte
+let map = null;
+
+function initMap() {
+  if (map) {
+    map.remove();
+    map = null;
+  }
+
+  map = L.map('map').setView([48.05, 8.2], 10);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  const rides = loadRides();
+
+  if (rides.length === 0) return;
+
+  const markers = [];
+
+  rides.forEach(r => {
+    if (r.lat && r.lng) {
+      const marker = L.marker([r.lat, r.lng])
+        .addTo(map)
+        .bindPopup(`
+          <strong>${r.name}</strong><br>
+          ${r.date}<br>
+          ${r.distance} km · ${r.elevation} Hm · ${r.duration} min<br>
+          ${r.calories} kcal
+        `);
+      markers.push(marker);
+    }
+  });
+
+  if (markers.length > 0) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.2));
+  }
+}
+
 // Hilfsfunktionen
 function showScreen(screen) {
   [onboardingScreen, dashboardScreen, addRideScreen].forEach(s => s.classList.add('hidden'));
@@ -81,6 +122,7 @@ document.getElementById('onboarding-form').addEventListener('submit', e => {
   localStorage.setItem('profile', JSON.stringify(profile));
   showScreen(dashboardScreen);
   updateDashboard();
+initMap();
 });
 
 // Ride hinzufügen
@@ -99,22 +141,53 @@ document.getElementById('ride-form').addEventListener('submit', e => {
   const duration = parseInt(document.getElementById('duration').value);
   const elevation = parseInt(document.getElementById('elevation').value);
 
-  const ride = {
-    name: document.getElementById('trail-name').value,
-    date: document.getElementById('ride-date').value,
-    distance,
-    duration,
-    elevation,
-    calories: calcCalories(profile, distance, duration, elevation)
-  };
-
-  const rides = loadRides();
-  rides.push(ride);
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const ride = {
+        name: document.getElementById('trail-name').value,
+        date: document.getElementById('ride-date').value,
+        distance,
+        duration,
+        elevation,
+        calories: calcCalories(profile, distance, duration, elevation),
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      };
+      const rides = loadRides();
+      rides.push(ride);
+      localStorage.setItem('rides', JSON.stringify(rides));
+      document.getElementById('ride-form').reset();
+      showScreen(dashboardScreen);
+      updateDashboard();
+      initMap();
+    },
+    () => {
+      // Kein GPS — ohne Koordinaten speichern
+      const ride = {
+        name: document.getElementById('trail-name').value,
+        date: document.getElementById('ride-date').value,
+        distance,
+        duration,
+        elevation,
+        calories: calcCalories(profile, distance, duration, elevation),
+        lat: null,
+        lng: null
+      };
+      const rides = loadRides();
+      rides.push(ride);
+      localStorage.setItem('rides', JSON.stringify(rides));
+      document.getElementById('ride-form').reset();
+      showScreen(dashboardScreen);
+      updateDashboard();
+      initMap();
+    }
+  );;
   localStorage.setItem('rides', JSON.stringify(rides));
 
   document.getElementById('ride-form').reset();
   showScreen(dashboardScreen);
   updateDashboard();
+initMap();
 });
 
 // App starten
