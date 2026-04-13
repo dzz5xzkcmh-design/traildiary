@@ -27,22 +27,31 @@
     </form>
   </div>
 
-  <!-- Dashboard -->
+  <!-- Dashboard / Pinnwand -->
   <div id="dashboard" class="screen hidden">
     <header>
       <h1>Traildiary</h1>
       <button id="settings-btn">Einstellungen</button>
     </header>
+
+    <!-- Stats Bar -->
     <div id="stats">
       <div class="stat"><span id="total-rides">0</span><label>Rides</label></div>
-      <div class="stat"><span id="total-km">0</span><label>km</label></div>
+      <div class="stat"><span id="total-km">0.0</span><label>km</label></div>
       <div class="stat"><span id="total-hm">0</span><label>Hm</label></div>
       <div class="stat"><span id="total-kcal">0</span><label>kcal</label></div>
     </div>
-    <div id="ride-list"></div>
-    <div id="map"></div>
+
+    <!-- Pinnwand -->
+    <div id="pinboard-wrapper">
+      <div id="pinboard-canvas">
+        <!-- Polaroids werden hier per JS eingefügt -->
+      </div>
+    </div>
+
+    <!-- + Ride Button -->
     <div class="add-ride-wrap">
-      <button id="add-ride-btn">+ Ride</button>
+      <button id="add-ride-btn">+ Ride anpinnen</button>
     </div>
   </div>
 
@@ -52,12 +61,52 @@
     <form id="ride-form">
       <input type="text" id="trail-name" placeholder="Trailname" required />
       <input type="date" id="ride-date" required />
-      <input type="number" id="distance" placeholder="Distanz (km)" required />
+      <input type="number" id="distance" placeholder="Distanz (km)" step="0.1" required />
       <input type="number" id="duration" placeholder="Dauer (Minuten)" required />
       <input type="number" id="elevation" placeholder="Höhenmeter" required />
-      <button type="submit">Speichern</button>
+      <textarea id="description" placeholder="Beschreib deinen Ride..." rows="4" required></textarea>
+
+      <!-- Bild Upload -->
+      <div class="image-upload-area">
+        <label class="upload-label">
+          Fotos hinzufügen (1–3)
+          <input type="file" id="image-upload" accept="image/*" multiple />
+        </label>
+        <div id="image-previews"></div>
+        <p class="upload-hint">Erstes Bild wird als Polaroid-Cover verwendet.</p>
+      </div>
+
+      <button type="submit">Anpinnen</button>
       <button type="button" id="cancel-ride">Abbrechen</button>
     </form>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="hidden">
+    <div id="modal-backdrop"></div>
+    <div id="modal-content">
+      <button id="modal-close">✕</button>
+
+      <!-- Bildergalerie -->
+      <div id="modal-gallery">
+        <img id="modal-main-img" src="" alt="" />
+        <div id="modal-thumbs"></div>
+      </div>
+
+      <!-- Infos -->
+      <div id="modal-info">
+        <h2 id="modal-title"></h2>
+        <p id="modal-date"></p>
+        <p id="modal-description"></p>
+        <div id="modal-stats">
+          <div class="modal-stat"><span id="modal-km"></span><label>km</label></div>
+          <div class="modal-stat"><span id="modal-hm"></span><label>Hm</label></div>
+          <div class="modal-stat"><span id="modal-duration"></span><label>min</label></div>
+          <div class="modal-stat"><span id="modal-kcal"></span><label>kcal</label></div>
+        </div>
+        <button id="modal-delete" class="delete-ride-btn">Ride löschen</button>
+      </div>
+    </div>
   </div>
 
   <!-- Einstellungen -->
