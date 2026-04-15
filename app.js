@@ -13,6 +13,7 @@ let scale = 0.5;
 let panX = 0;
 let panY = 0;
 let isPanning = false;
+let hasPanned = false;
 let startX, startY;
 
 function applyTransform() {
@@ -24,12 +25,12 @@ wrapper.addEventListener('wheel', e => {
   e.preventDefault();
   e.stopPropagation();
 
-  // Pinch erkennen: kleine deltaY Werte mit ctrlKey = Pinch
-  const isPinch = e.ctrlKey;
+  // Zoomen: Mausrad (deltaX=0) oder Trackpad-Pinch (ctrlKey)
+  const isZoom = e.ctrlKey || e.deltaX === 0;
 
-  if (isPinch) {
+  if (isZoom) {
     const oldScale = scale;
-    const delta = e.deltaY > 0 ? -0.03 : 0.03;
+    const delta = e.deltaY > 0 ? -(e.ctrlKey ? 0.03 : 0.12) : (e.ctrlKey ? 0.03 : 0.12);
     scale = Math.min(Math.max(scale + delta, 0.2), 2);
 
     const rect = wrapper.getBoundingClientRect();
@@ -39,6 +40,7 @@ wrapper.addEventListener('wheel', e => {
     panX = mouseX - (mouseX - panX) * (scale / oldScale);
     panY = mouseY - (mouseY - panY) * (scale / oldScale);
   } else {
+    // Trackpad zwei-Finger horizontal/diagonal scrollen → pannen
     panX -= e.deltaX;
     panY -= e.deltaY;
   }
@@ -47,6 +49,7 @@ wrapper.addEventListener('wheel', e => {
 }, { passive: false });
 // Pan mit Maus (Click & Drag)
 wrapper.addEventListener('mousedown', e => {
+  hasPanned = false;
   if (e.target.closest('.polaroid')) return;
   isPanning = true;
   startX = e.clientX - panX;
@@ -56,6 +59,7 @@ wrapper.addEventListener('mousedown', e => {
 
 window.addEventListener('mousemove', e => {
   if (!isPanning) return;
+  hasPanned = true;
   panX = e.clientX - startX;
   panY = e.clientY - startY;
   applyTransform();
@@ -86,6 +90,7 @@ function formatDate(dateStr) {
 }
 
 function calcCalories(profile, distanceKm, durationMin, elevationM) {
+  if (!durationMin || durationMin <= 0) return 0;
   const hours = durationMin / 60;
   const speed = distanceKm / hours;
 
@@ -103,24 +108,8 @@ function calcCalories(profile, distanceKm, durationMin, elevationM) {
   return Math.round(met * profile.weight * hours * genderFactor);
 }
 
-// ── STATS AKTUALISIEREN ──
-function updateStats() {
-  const rides = loadRides();
-  let totalKm = 0, totalHm = 0, totalKcal = 0;
-  rides.forEach(r => {
-    totalKm += r.distance;
-    totalHm += r.elevation;
-    totalKcal += r.calories;
-  });
-  document.getElementById('total-rides').textContent = rides.length;
-  document.getElementById('total-km').textContent = totalKm.toFixed(1);
-  document.getElementById('total-hm').textContent = totalHm;
-  document.getElementById('total-kcal').textContent = totalKcal;
-}
-
 // ── PINNWAND RENDERN ──
-function renderPinboard() {
-  const rides = loadRides();
+function renderPinboard(rides = loadRides()) {
   canvas.innerHTML = '';
 
 
@@ -131,13 +120,23 @@ function renderPinboard() {
     polaroid.style.top = ride.y + 'px';
     polaroid.style.transform = `rotate(${ride.rotation}deg)`;
 
-    polaroid.innerHTML = `
-      <div class="polaroid-pin"></div>
-      <img class="polaroid-img" src="${ride.images[0]}" alt="${ride.name}" />
-      <div class="polaroid-label">${ride.name}</div>
-    `;
+    const pin = document.createElement('div');
+    pin.className = 'polaroid-pin';
 
-    polaroid.addEventListener('click', () => openModal(index));
+    const img = document.createElement('img');
+    img.className = 'polaroid-img';
+    img.src = ride.images[0];
+    img.alt = ride.name;
+
+    const label = document.createElement('div');
+    label.className = 'polaroid-label';
+    label.textContent = ride.name;
+
+    polaroid.appendChild(pin);
+    polaroid.appendChild(img);
+    polaroid.appendChild(label);
+
+    polaroid.addEventListener('click', () => { if (!hasPanned) openModal(index); });
     canvas.appendChild(polaroid);
   });
 }
@@ -195,8 +194,7 @@ document.getElementById('modal-delete').addEventListener('click', () => {
   rides.splice(currentModalIndex, 1);
   localStorage.setItem('rides', JSON.stringify(rides));
   closeModal();
-  updateStats();
-  renderPinboard();
+  renderPinboard(rides);
 });
 
 // ── BILDKOMPRIMIERUNG ──
@@ -204,7 +202,7 @@ function compressImage(dataUrl, maxWidth = 800) {
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
+      const offscreen = document.createElement('canvas');
       let width = img.width;
       let height = img.height;
 
@@ -213,13 +211,13 @@ function compressImage(dataUrl, maxWidth = 800) {
         width = maxWidth;
       }
 
-      canvas.width = width;
-      canvas.height = height;
+      offscreen.width = width;
+      offscreen.height = height;
 
-      const ctx = canvas.getContext('2d');
+      const ctx = offscreen.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      resolve(canvas.toDataURL('image/jpeg', 0.7));
+      resolve(offscreen.toDataURL('image/jpeg', 0.7));
     };
     img.src = dataUrl;
   });
@@ -238,7 +236,7 @@ document.getElementById('image-upload').addEventListener('change', e => {
     const reader = new FileReader();
     reader.onload = async ev => {
       const compressed = await compressImage(ev.target.result);
-      uploadedImages.push(compressed);
+      uploadedImages[i] = compressed;
       const img = document.createElement('img');
       img.src = compressed;
       if (i === 0) img.classList.add('active');
@@ -259,7 +257,6 @@ document.getElementById('onboarding-form').addEventListener('submit', e => {
   };
   localStorage.setItem('profile', JSON.stringify(profile));
   showScreen(dashboardScreen);
-  updateStats();
   renderPinboard();
   applyTransform();
 });
@@ -317,8 +314,7 @@ document.getElementById('ride-form').addEventListener('submit', e => {
   document.getElementById('image-previews').innerHTML = '';
 
   showScreen(dashboardScreen);
-  updateStats();
-  renderPinboard();
+  renderPinboard(rides);
 
   // Zum neuen Polaroid zoomen
   panX = -ride.x * scale + window.innerWidth / 2;
@@ -355,7 +351,6 @@ document.getElementById('settings-form').addEventListener('submit', e => {
 // ── INIT ──
 if (loadProfile()) {
   showScreen(dashboardScreen);
-  updateStats();
   renderPinboard();
   applyTransform();
 } else {
