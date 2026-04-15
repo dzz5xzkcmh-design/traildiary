@@ -151,7 +151,6 @@ function openModal(index) {
 
   document.getElementById('modal-title').textContent = ride.name;
   document.getElementById('modal-date').textContent = formatDate(ride.date);
-  document.getElementById('modal-description').textContent = ride.description;
   document.getElementById('modal-km').textContent = ride.distance;
   document.getElementById('modal-hm').textContent = ride.elevation;
   document.getElementById('modal-duration').textContent = ride.duration;
