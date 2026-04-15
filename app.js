@@ -71,6 +71,21 @@ window.addEventListener('mouseup', () => {
 });
 
 // ── HILFSFUNKTIONEN ──
+function sanitize(str) {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(String(str)));
+  return div.innerHTML;
+}
+
+function checkStorageSize() {
+  const used = JSON.stringify(localStorage).length / 1024 / 1024;
+  if (used > 4) {
+    alert('Warnung: Speicher fast voll (' + used.toFixed(1) + ' MB). Bitte alte Rides löschen.');
+    return false;
+  }
+  return true;
+}
+
 function showScreen(screen) {
   [onboardingScreen, dashboardScreen, addRideScreen, settingsScreen].forEach(s => s.classList.add('hidden'));
   screen.classList.remove('hidden');
@@ -285,6 +300,19 @@ document.getElementById('ride-form').addEventListener('submit', e => {
   const duration = parseInt(document.getElementById('duration').value);
   const elevation = parseInt(document.getElementById('elevation').value);
 
+  if (distance <= 0 || distance > 500) {
+    alert('Bitte eine realistische Distanz eingeben (1–500 km)');
+    return;
+  }
+  if (duration <= 0 || duration > 1440) {
+    alert('Bitte eine realistische Dauer eingeben (1–1440 min)');
+    return;
+  }
+  if (elevation < 0 || elevation > 5000) {
+    alert('Bitte realistische Höhenmeter eingeben (0–5000 m)');
+    return;
+  }
+
   // Zufällige Position und Rotation auf der Pinnwand
   const x = 100 + Math.random() * 2400;
   const y = 100 + Math.random() * 1600;
@@ -306,6 +334,7 @@ document.getElementById('ride-form').addEventListener('submit', e => {
 
   const rides = loadRides();
   rides.push(ride);
+  if (!checkStorageSize()) return;
   localStorage.setItem('rides', JSON.stringify(rides));
 
   document.getElementById('ride-form').reset();
